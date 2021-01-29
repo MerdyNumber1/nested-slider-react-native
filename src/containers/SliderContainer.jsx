@@ -1,7 +1,8 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Slider from "../components/Slider";
 
 export default function SliderContainer() {
+    const [slides, setSlides] = useState([]);
     const [categories] = useState([
         {
             title: 'Бургеры',
@@ -28,6 +29,34 @@ export default function SliderContainer() {
             ]
         }
     ]);
+    const [activeCategory, setActiveCategory] = useState(categories[0]);
+    const [activeSlideInCategory, setActiveSlideInCategory] = useState(0);
 
-    return <Slider categories={categories} />;
+    const onSnapToItem = (index, imageId) => {
+        setActiveCategory(categories.find(category => category.images.find((image, index) => {
+            if(image === imageId) {
+                setActiveSlideInCategory(index);
+                return true;
+            }
+        })))
+    }
+
+    useEffect(() => {
+        const slides = []
+        categories.forEach((category, i) =>
+            slides.push(...category.images)
+        )
+        setSlides(slides)
+    }, [categories])
+
+    return (
+        <Slider
+            slides={slides}
+            activeTitle={activeCategory.title}
+            categories={categories}
+            onSnapToItem={onSnapToItem}
+            activeCategory={activeCategory}
+            activeDot={activeSlideInCategory}
+        />
+    );
 }
