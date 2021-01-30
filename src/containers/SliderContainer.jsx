@@ -1,62 +1,112 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useMemo } from "react";
 import Slider from "../components/Slider";
 
 export default function SliderContainer() {
-    const [slides, setSlides] = useState([]);
     const [categories] = useState([
         {
+            id: 1,
             title: 'Бургеры',
-            images: [
-                require('./slides/burgers/burger-1.jpeg'),
-                require('./slides/burgers/burger-2.jpeg'),
-                require('./slides/burgers/burger-3.jpeg')
+            color: '#95bddc',
+            slides: [
+                {
+                    id: 1,
+                    image: require('./slides/burgers/burger-1.jpeg')
+                },
+                {
+                    id: 2,
+                    image: require('./slides/burgers/burger-2.jpeg')
+                },
+                {
+                    id: 3,
+                    image: require('./slides/burgers/burger-3.jpeg')
+                },
             ]
         },
         {
+            id: 2,
             title: 'Пицца',
-            images: [
-                require('./slides/pizza/pizza-1.jpeg'),
-                require('./slides/pizza/pizza-2.jpeg'),
-                require('./slides/pizza/pizza-3.jpeg')
+            color: '#fbc6d0',
+            slides: [
+                {
+                    id: 4,
+                    image: require('./slides/pizza/pizza-1.jpeg')
+                },
+                {
+                    id: 5,
+                    image: require('./slides/pizza/pizza-2.jpeg')
+                },
+                {
+                    id: 6,
+                    image: require('./slides/pizza/pizza-3.jpeg')
+                },
             ],
         },
         {
+            id: 3,
             title: 'Чай',
-            images: [
-                require('./slides/tea/tea-1.jpeg'),
-                require('./slides/tea/tea-2.jpeg'),
-                require('./slides/tea/tea-3.jpeg')
+            color: '#fe793d',
+            slides: [
+                {
+                    id: 7,
+                    image: require('./slides/tea/tea-1.jpeg')
+                },
+                {
+                    id: 8,
+                    image: require('./slides/tea/tea-2.jpeg')
+                },
+                {
+                    id: 9,
+                    image: require('./slides/tea/tea-3.jpeg')
+                },
             ]
         }
     ]);
     const [activeCategory, setActiveCategory] = useState(categories[0]);
     const [activeSlideInCategory, setActiveSlideInCategory] = useState(0);
 
-    const onSnapToItem = (index, imageId) => {
-        setActiveCategory(categories.find(category => category.images.find((image, index) => {
-            if(image === imageId) {
+    const onSnapToItem = (index, slideId) => {
+        const newActiveCategory = categories.find(category => category.slides.find((slide, index) => {
+            if (slide.id === slideId) {
                 setActiveSlideInCategory(index);
                 return true;
             }
-        })))
+        }));
+
+        if (activeCategory.id !== newActiveCategory.id) setActiveCategory(newActiveCategory);
+    }
+    const onChangeCategory = (categoryId, carouselRef) => {
+        setActiveCategory(categories.find(category => {
+            if(category.id === categoryId) {
+                carouselRef.snapToItem(getSlidesLengthBeforeCategory(categoryId))
+                return true
+            }
+        }))
+    }
+    const onDotActivate = (dotIndex, categoryId, carouselRef) => {
+        carouselRef.snapToItem(getSlidesLengthBeforeCategory(categoryId) + dotIndex)
+        setActiveSlideInCategory(dotIndex)
     }
 
-    useEffect(() => {
-        const slides = []
-        categories.forEach((category, i) =>
-            slides.push(...category.images)
-        )
-        setSlides(slides)
+    const getSlidesLengthBeforeCategory = (categoryId) => {
+        let activeSlide = 0;
+        categories.every(category => category.id !== categoryId ? activeSlide += category.slides.length : false)
+        return activeSlide
+    }
+
+    const slides = useMemo(() => {
+        return categories.flatMap(category => category.slides)
     }, [categories])
 
     return (
         <Slider
-            slides={slides}
             activeTitle={activeCategory.title}
-            categories={categories}
-            onSnapToItem={onSnapToItem}
             activeCategory={activeCategory}
             activeDot={activeSlideInCategory}
+            slides={slides}
+            categories={categories}
+            onSnapToItem={onSnapToItem}
+            onChangeCategory={onChangeCategory}
+            onDotActivate={onDotActivate}
         />
     );
 }
