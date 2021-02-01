@@ -6,7 +6,6 @@ export default function SliderContainer() {
         {
             id: 1,
             title: 'Бургеры',
-            color: '#95bddc',
             slides: [
                 {
                     id: 1,
@@ -25,7 +24,6 @@ export default function SliderContainer() {
         {
             id: 2,
             title: 'Пицца',
-            color: '#fbc6d0',
             slides: [
                 {
                     id: 4,
@@ -44,7 +42,6 @@ export default function SliderContainer() {
         {
             id: 3,
             title: 'Чай',
-            color: '#fe793d',
             slides: [
                 {
                     id: 7,
@@ -93,9 +90,7 @@ export default function SliderContainer() {
         return activeSlide
     }
 
-    const slides = useMemo(() => {
-        return categories.flatMap(category => category.slides)
-    }, [categories])
+    const slides = useMemo(() => categories.flatMap(category => category.slides), [categories])
 
     return (
         <Slider
